@@ -8,6 +8,7 @@ using System.IO;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Navigation;
+using System.Threading;
 
 namespace crypt
 {
@@ -33,7 +34,7 @@ namespace crypt
                 }
             }
         }
-        [STAThread]
+
         static void Main(string[] args)
         {
             if (args.Contains("xml"))
@@ -176,7 +177,9 @@ namespace crypt
                     return;
                 }
                 Console.WriteLine("run-in-memory pubkey={0} input={1} signature={2} of {3} args", publickey_path, input_path, signature_path, args.Length);
-                RunSigned(input_path, publickey_path, signature_path);
+                Thread thread = new Thread(() => RunSigned(input_path, publickey_path, signature_path));
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
                 return;
             }
             Console.WriteLine("valid verbs are only: xml | sign | verify | run-in-memory");
